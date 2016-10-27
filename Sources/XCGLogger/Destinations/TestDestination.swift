@@ -7,6 +7,8 @@
 //  Some rights reserved: https://github.com/DaveWoodCom/XCGLogger/blob/master/LICENSE.txt
 //
 
+import Dispatch
+
 // MARK: - TestDestination
 /// A destination for testing, preload it with the expected logs, send your logs, then check for success
 open class TestDestination: BaseDestination {
@@ -43,7 +45,7 @@ open class TestDestination: BaseDestination {
     ///
     open func add(expectedLogMessage message: String) {
         sync {
-            expectedLogMessages.append(message)
+            self.expectedLogMessages.append(message)
         }
     }
 
@@ -54,7 +56,7 @@ open class TestDestination: BaseDestination {
     ///
     /// - Returns:  Nothing
     ///
-    fileprivate func sync(closure: () -> ()) {
+    fileprivate func sync(closure: @escaping () -> ()) {
         if let logQueue = logQueue {
             logQueue.sync {
                 closure()
@@ -96,14 +98,14 @@ open class TestDestination: BaseDestination {
                 return
             }
             
-            applyFormatters(logDetails: &logDetails, message: &message)
+            self.applyFormatters(logDetails: &logDetails, message: &message)
 
-            let index = expectedLogMessages.index(of: message)
+            let index = self.expectedLogMessages.index(of: message)
             if let index = index {
-                expectedLogMessages.remove(at: index)
+                self.expectedLogMessages.remove(at: index)
             }
             else {
-                unexpectedLogMessages.append(message)
+                self.unexpectedLogMessages.append(message)
             }
         }
     }
